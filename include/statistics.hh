@@ -5,13 +5,13 @@
 #include <vector>
 
 struct Statistics {
-  long double get_mean(std::vector<long double> values) {
+  static long double get_mean(std::vector<long double> values) {
     if (values.empty())
       return 0.0L;
     return std::accumulate(values.begin(), values.end(), 0.0L) / values.size();
   }
 
-  long double get_standard_deviation(std::vector<long double> values) {
+  static long double get_stdev(std::vector<long double> values) {
     if (values.size() < 2)
       return 0.0L;
     long double mean = get_mean(values);

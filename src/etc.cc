@@ -23,14 +23,14 @@ int main() {
 
         std::vector<long double> rewards;
         for (size_t i = 0; i < EXPERIMENT_REPITIONS; ++i) {
-          ETCAgent agent(K, T);
-          auto best_arm = agent.explore(m);
-          auto overall_reward = agent.commit(best_arm);
+          ETCAgent agent(K);
+          size_t best_arm = agent.explore(m);
+          long double overall_reward = agent.commit(best_arm);
           rewards.emplace_back(overall_reward);
         }
 
-        auto stdev = get_stdev(rewards);
-        auto mena = get_mean(rewards);
+        auto stdev = Statistics::get_stdev(rewards);
+        auto mean = Statistics::get_mean(rewards);
         std::cout << "Got overall reward stdev: " << stdev << "; mean: " << mean << '\n';
       }
     }

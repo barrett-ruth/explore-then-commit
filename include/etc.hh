@@ -7,16 +7,15 @@
 #include "arm.hh"
 
 struct ETCAgent {
- public:
-  explore_then_commit_agent(size_t arm_count, size_t rounds_) : rounds(rounds_) { arms.reserve(arm_count); }
+public:
+  ETCAgent(size_t arm_count) : arms(arm_count) {}
 
-  uint64_t explore();
+  size_t explore(size_t depth);
 
-  uint64_t commit();
+  long double commit(size_t arm_index);
 
- private:
+private:
   size_t rounds;
   size_t rounds_played;
   std::vector<Arm> arms;
-  size_t best_arm;
 };

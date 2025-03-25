@@ -11,4 +11,12 @@ struct Distribution {
 
     return dist(gen);
   }
+
+  static long double generate_mu() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<long double> dist(1L, 100L);
+
+    return dist(gen);
+  }
 };

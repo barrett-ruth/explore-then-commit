@@ -23,9 +23,11 @@ public:
     return static_cast<long double>(total_reward) / total_pulls;
   }
 
+  long double get_total_reward() const { return total_reward; }
+
 private:
   long double total_reward;
-  long double mu;
   long double sigma;
+  long double mu;
   std::size_t total_pulls;
 };

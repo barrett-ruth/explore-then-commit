@@ -1,10 +1,13 @@
 #pragma once
 
-#include <cstdint>
+#include "distribution.hh"
 
 struct Arm {
  public:
-  Arm() : total_reward{}, total_pulls{} {};
+  long double sigma;
+  Arm() : total_reward{}, total_pulls{} {
+    sigma = Distribution::generate_sigma();
+  };
 
   long double get_reward() const;
 

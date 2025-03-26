@@ -29,7 +29,7 @@ std::pair<size_t, long double> best_m(size_t T, size_t K) {
     }
 
     long double avg_regret = total_regret / EXPERIMENT_REPITITIONS;
-    if (avg_regret > smallest_regret) {
+    if (avg_regret < smallest_regret) {
       best = m;
       smallest_regret = avg_regret;
     }
@@ -51,7 +51,7 @@ long double get_theoretical_m(ETCAgent& agent) {
       delta = std::min(delta, mu_star - arm.get_mu());
     }
   }
-  return std::max(std::ceill(4.0L / (delta * delta) * std::log(static_cast<long double>(arms.size()) * delta * delta / 4.0L)), 0.0L);
+  return std::max(std::ceill(4.0L / (delta * delta) * std::log(static_cast<long double>(arms.size()) * delta * delta / 4.0L)), 1.0L);
 }
 
 int main() {
@@ -61,9 +61,9 @@ int main() {
   constexpr size_t T_STEP = 1000;
 
   for (size_t K = MIN_K; K <= MAX_K; K += K_STEP) {
-    for (size_t T = MIN_T; T <= MAX_T; T += T_STEP) {
+    for (size_t T = MIN_T; T < MAX_T; T += T_STEP) {
         std::cout << "Running K=" << std::to_string(K)
-                  << "; T=" << std::to_string(T)
+                  << "; T=" << std::to_string(T) << " "
                   << std::to_string(EXPERIMENT_REPITITIONS) << " times\n";
 
         std::vector<long double> regrets;
@@ -86,7 +86,7 @@ int main() {
   size_t T = 5000, K = 30;
   auto [m, smallest_regret] = best_m(T, K);
   std::cout << "With T=" << T << "; K=" << K << ", got best m=" << m << '\n';
-  std::cout << "It has a smallest average regret of" << smallest_regret << '\n';
+  std::cout << "It has a smallest average regret of " << smallest_regret << '\n';
 
   return 0;
 }

@@ -56,7 +56,6 @@ int main() {
           ETCAgent agent(K, T);
           size_t best_arm = agent.explore(m);
           auto [_, regret] = agent.commit(best_arm, m);
-          std::cout << "emplacing\n";
           regrets.emplace_back(regret);
         }
 

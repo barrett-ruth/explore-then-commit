@@ -35,22 +35,22 @@ public:
 
   std::pair<long double, long double> commit(size_t arm_index, int depth) {
     int remaining_rounds = rounds - (arms.size() * depth);
+    long double net_mus = 0;
     for (int i = 0; i < remaining_rounds; ++i) {
       arms[arm_index].pull();
+      net_mus += arms[arm_index].get_mu();
     }
     long double total_reward = 0.0L;
     for (const Arm &arm : arms) {
       total_reward += arm.get_total_reward();
+      net_mus += arm.get_mu();
     }
 
     long double mu_star = std::numeric_limits<long double>::min();
-    long double expected_reward = 0;
     for (auto &arm : arms) {
       mu_star = std::max(mu_star, arm.get_mu());
-      expected_reward += arm.get_mu();
     }
-    long double regret =
-        static_cast<long double>(arms.size()) * mu_star - expected_reward;
+    long double regret = static_cast<long double>(rounds) * mu_star - net_mus;
     return {total_reward, regret};
   }
 

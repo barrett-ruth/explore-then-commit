@@ -40,15 +40,18 @@ std::pair<size_t, long double> best_m(size_t T, size_t K) {
 
 long double get_theoretical_m(ETCAgent& agent) {
   std::vector<Arm> arms = agent.get_arms();
-  long double delta = 0;
+  long double delta = std::numeric_limits<long double>::max();
   long double mu_star = std::numeric_limits<long double>::min();
   for (auto &arm : arms) {
     mu_star = std::max(mu_star, arm.get_mu());
   }
   for (auto &arm : arms) {
-    delta += mu_star - arm.get_mu();
+    // https://proceedings.neurips.cc/paper_files/paper/2017/file/b299ad862b6f12cb57679f0538eca514-Paper.pdf
+    if (arm.get_mu() < mu_star) {
+      delta = std::min(delta, mu_star - arm.get_mu());
+    }
   }
-  return std::ceill(4.0L / (delta * delta) * std::log(static_cast<long double>(arms.size()) * delta * delta / 4.0L));
+  return std::max(std::ceill(4.0L / (delta * delta) * std::log(static_cast<long double>(arms.size()) * delta * delta / 4.0L)), 0.0L);
 }
 
 int main() {

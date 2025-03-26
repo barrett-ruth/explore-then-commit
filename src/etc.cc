@@ -1,15 +1,18 @@
 #include "etc.hh"
 
-#include <cstddef>
 #include <iostream>
+#include <vector>
 #include <limits>
 #include <utility>
+#include <cmath>
+#include <string>
+#include <type_traits>
 
 #include "arm.hh"
 #include "etc.hh"
 #include "statistics.hh"
 
-constexpr size_t EXPERIMENT_REPITIONS = 5;
+constexpr size_t EXPERIMENT_REPITITIONS = 5;
 
 std::pair<size_t, long double> best_m(size_t T, size_t K) {
   size_t best;
@@ -17,22 +20,22 @@ std::pair<size_t, long double> best_m(size_t T, size_t K) {
   for (size_t m = 1; m <= T / K; ++m) {
     long double total_reward = 0;
 
-    for (size_t i = 0; i < EXPERIMENT_REPITIONS; ++i) {
+    for (size_t i = 0; i < EXPERIMENT_REPITITIONS; ++i) {
       ETCAgent agent(K, T);
       size_t best_arm = agent.explore(m);
-      long double reward = agent.commit(best_arm);
+      long double reward = agent.commit(best_arm, m);
 
       total_reward += reward;
     }
 
-    long double avg_reward = total_reward / EXPERIMENT_REPETITION;
+    long double avg_reward = total_reward / EXPERIMENT_REPITITIONS;
     if (avg_reward > best_avg_reward) {
       best = m;
       best_avg_reward = avg_reward;
     }
   }
 
-  return {m, best_reward};
+  return std::pair<size_t, long double>(best, best_avg_reward);
 }
 
 int main() {
@@ -46,13 +49,13 @@ int main() {
       for (size_t m = 1; m <= T / K; ++m) {
         std::cout << "Running K=" << std::to_string(K)
                   << "; T=" << std::to_string(T) << "; M=" << m
-                  << std::to_string(EXPERIMENT_REPITIONS) << " times\n";
+                  << std::to_string(EXPERIMENT_REPITITIONS) << " times\n";
 
         std::vector<long double> rewards;
-        for (size_t i = 0; i < EXPERIMENT_REPITIONS; ++i) {
+        for (size_t i = 0; i < EXPERIMENT_REPITITIONS; ++i) {
           ETCAgent agent(K, T);
           size_t best_arm = agent.explore(m);
-          long double overall_reward = agent.commit(best_arm);
+          long double overall_reward = agent.commit(best_arm, m);
           rewards.emplace_back(overall_reward);
         }
 

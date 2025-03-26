@@ -38,6 +38,19 @@ std::pair<size_t, long double> best_m(size_t T, size_t K) {
   return std::pair<size_t, long double>(best, smallest_regret);
 }
 
+long double get_theoretical_m(ETCAgent& agent) {
+  std::vector<Arm> arms = agent.get_arms();
+  long double delta = 0;
+  long double mu_star = std::numeric_limits<long double>::min();
+  for (auto &arm : arms) {
+    mu_star = std::max(mu_star, arm.get_mu());
+  }
+  for (auto &arm : arms) {
+    delta += mu_star - arm.get_mu();
+  }
+  return std::ceill(4.0L / (delta * delta) * std::log(static_cast<long double>(arms.size()) * delta * delta / 4.0L));
+}
+
 int main() {
   constexpr size_t MIN_K = 10, MAX_K = 30;
   constexpr size_t K_STEP = 5;
@@ -46,14 +59,15 @@ int main() {
 
   for (size_t K = MIN_K; K <= MAX_K; K += K_STEP) {
     for (size_t T = MIN_T; T <= MAX_T; T += T_STEP) {
-      for (size_t m = 1; m <= T / K; ++m) {
         std::cout << "Running K=" << std::to_string(K)
-                  << "; T=" << std::to_string(T) << "; M=" << m
+                  << "; T=" << std::to_string(T)
                   << std::to_string(EXPERIMENT_REPITITIONS) << " times\n";
 
         std::vector<long double> regrets;
         for (size_t i = 0; i < EXPERIMENT_REPITITIONS; ++i) {
           ETCAgent agent(K, T);
+          long double m = get_theoretical_m(agent);
+          std::cout << "Best m: " << m << '\n';
           size_t best_arm = agent.explore(m);
           auto [_, regret] = agent.commit(best_arm, m);
           regrets.emplace_back(regret);
@@ -63,7 +77,6 @@ int main() {
         auto mean = Statistics::get_mean(regrets);
         std::cout << "Got overall regret stdev: " << stdev << "; mean: " << mean
                   << '\n';
-      }
     }
   }
 

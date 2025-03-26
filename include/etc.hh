@@ -54,6 +54,10 @@ public:
     return {total_reward, regret};
   }
 
+std::vector<Arm> get_arms() {
+  return arms;
+}
+
 private:
   int rounds;
   size_t rounds_played;

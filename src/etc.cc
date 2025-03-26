@@ -16,26 +16,26 @@ constexpr size_t EXPERIMENT_REPITITIONS = 5;
 
 std::pair<size_t, long double> best_m(size_t T, size_t K) {
   size_t best;
-  long double best_avg_reward = std::numeric_limits<long double>::min();
+  long double smallest_regret = std::numeric_limits<long double>::max();
   for (size_t m = 1; m <= T / K; ++m) {
-    long double total_reward = 0;
+    long double total_regret = 0;
 
-    for (size_t i = 0; i < EXPERIMENT_REPITITIONS; ++i) {
+    for (int i = 0; i < EXPERIMENT_REPITITIONS; ++i) {
       ETCAgent agent(K, T);
       size_t best_arm = agent.explore(m);
-      long double reward = agent.commit(best_arm, m);
+      auto [reward, regret] = agent.commit(best_arm, m);
 
-      total_reward += reward;
+      total_regret += regret;
     }
 
-    long double avg_reward = total_reward / EXPERIMENT_REPITITIONS;
-    if (avg_reward > best_avg_reward) {
+    long double avg_regret = total_regret / EXPERIMENT_REPITITIONS;
+    if (avg_regret > smallest_regret) {
       best = m;
-      best_avg_reward = avg_reward;
+      smallest_regret = avg_regret;
     }
   }
 
-  return std::pair<size_t, long double>(best, best_avg_reward);
+  return std::pair<size_t, long double>(best, smallest_regret);
 }
 
 int main() {
@@ -51,26 +51,27 @@ int main() {
                   << "; T=" << std::to_string(T) << "; M=" << m
                   << std::to_string(EXPERIMENT_REPITITIONS) << " times\n";
 
-        std::vector<long double> rewards;
+        std::vector<long double> regrets;
         for (size_t i = 0; i < EXPERIMENT_REPITITIONS; ++i) {
           ETCAgent agent(K, T);
           size_t best_arm = agent.explore(m);
-          long double overall_reward = agent.commit(best_arm, m);
-          rewards.emplace_back(overall_reward);
+          auto [_, regret] = agent.commit(best_arm, m);
+          std::cout << "emplacing\n";
+          regrets.emplace_back(regret);
         }
 
-        auto stdev = Statistics::get_stdev(rewards);
-        auto mean = Statistics::get_mean(rewards);
-        std::cout << "Got overall reward stdev: " << stdev << "; mean: " << mean
+        auto stdev = Statistics::get_stdev(regrets);
+        auto mean = Statistics::get_mean(regrets);
+        std::cout << "Got overall regret stdev: " << stdev << "; mean: " << mean
                   << '\n';
       }
     }
   }
 
   size_t T = 5000, K = 30;
-  auto [m, best_reward] = best_m(T, K);
+  auto [m, smallest_regret] = best_m(T, K);
   std::cout << "With T=" << T << "; K=" << K << ", got best m=" << m << '\n';
-  std::cout << "It has a highest average reward of " << best_reward << '\n';
+  std::cout << "It has a smallest average regret of" << smallest_regret << '\n';
 
   return 0;
 }

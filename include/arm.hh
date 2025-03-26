@@ -23,7 +23,9 @@ public:
     return static_cast<long double>(total_reward) / total_pulls;
   }
 
-  long double get_total_reward() const { return total_reward; }
+  [[nodiscard]] long double get_total_reward() const { return total_reward; }
+
+  [[nodiscard]] long double get_mu() const { return mu; }
 
 private:
   long double total_reward;

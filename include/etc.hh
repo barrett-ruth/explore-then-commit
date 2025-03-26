@@ -8,11 +8,7 @@
 struct ETCAgent {
 public:
   ETCAgent(size_t arm_count, size_t round_count)
-      : arms(arm_count), rounds(round_count) {
-    for (int i = 0; i < arm_count; ++i) {
-      arms.emplace_back(Arm());
-    }
-  }
+      : arms(arm_count), rounds(round_count) {}
 
   size_t explore(size_t depth) {
     for (Arm &arm : arms) {

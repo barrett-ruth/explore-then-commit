@@ -61,32 +61,39 @@ int main() {
   constexpr size_t T_STEP = 1000;
 
   for (size_t K = MIN_K; K <= MAX_K; K += K_STEP) {
-    for (size_t T = MIN_T; T < MAX_T; T += T_STEP) {
-        std::cout << "Running K=" << std::to_string(K)
-                  << "; T=" << std::to_string(T) << " "
-                  << std::to_string(EXPERIMENT_REPITITIONS) << " times\n";
+    for (size_t T = MIN_T; T <= MAX_T; T += T_STEP) {
+      if (K == 30 && T == 5000) break;
+      std::cout << "Using a random mean from [1,100] and stdev [0.1, 1] for each arm\n";
+        std::cout << "\n Begin simulation \narms (K): " << K
+                  << ", rounds (T): " << T
+                  << ", Experiment Repetitions: " << EXPERIMENT_REPITITIONS << "\n";
 
         std::vector<long double> regrets;
         for (size_t i = 0; i < EXPERIMENT_REPITITIONS; ++i) {
           ETCAgent agent(K, T);
           long double m = get_theoretical_m(agent);
-          std::cout << "Best m: " << m << '\n';
+          std::cout << "  Experiment " << (i + 1)
+                    << ": Best depth m = " << m << "\n";
           size_t best_arm = agent.explore(m);
-          auto [_, regret] = agent.commit(best_arm, m);
+          auto [reward, regret] = agent.commit(best_arm, m);
+          std::cout << "    Best arm index selected: " << best_arm
+                    << ", Regret observed: " << regret << "\n";
           regrets.emplace_back(regret);
         }
 
         auto stdev = Statistics::get_stdev(regrets);
         auto mean = Statistics::get_mean(regrets);
-        std::cout << "Got overall regret stdev: " << stdev << "; mean: " << mean
+        std::cout << "Got overall regret stdev: " << stdev << "; regret mean: " << mean
                   << '\n';
     }
   }
 
   size_t T = 5000, K = 30;
   auto [m, smallest_regret] = best_m(T, K);
-  std::cout << "With T=" << T << "; K=" << K << ", got best m=" << m << '\n';
-  std::cout << "It has a smallest average regret of " << smallest_regret << '\n';
+  std::cout << "\n\nFinal Simulation: arms (K): " << K
+                  << ", rounds (T): " << T << "\n";
+  std::cout << "  Best m found: " << m << "\n";
+  std::cout << "  Corresponding average regret: " << smallest_regret << "\n";
 
   return 0;
 }

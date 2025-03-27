@@ -5,6 +5,7 @@
 #include <vector>
 
 struct Statistics {
+  // standard mean and stdev calculators
   static long double get_mean(std::vector<long double> values) {
     if (values.empty())
       return 0.0L;

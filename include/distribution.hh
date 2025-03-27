@@ -3,7 +3,7 @@
 #include <random>
 
 struct Distribution {
-
+  // helper functions for generating random stdevs and means in a range
   static long double generate_sigma() {
     std::random_device rd;
     std::mt19937 gen(rd());

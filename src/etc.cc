@@ -15,6 +15,7 @@
 constexpr size_t EXPERIMENT_REPITITIONS = 5;
 
 std::pair<size_t, long double> best_m(size_t T, size_t K) {
+  // for last example solving for optimal m T = 5000 K = 30
   size_t best;
   long double smallest_regret = std::numeric_limits<long double>::max();
   for (size_t m = 1; m <= T / K; ++m) {
@@ -38,7 +39,7 @@ std::pair<size_t, long double> best_m(size_t T, size_t K) {
   return std::pair<size_t, long double>(best, smallest_regret);
 }
 
-long double get_theoretical_m(ETCAgent& agent) {
+long double get_theoretical_m(ETCAgent& agent, size_t K, size_t T) {
   std::vector<Arm> arms = agent.get_arms();
   long double delta = std::numeric_limits<long double>::max();
   long double mu_star = std::numeric_limits<long double>::min();
@@ -48,10 +49,13 @@ long double get_theoretical_m(ETCAgent& agent) {
   for (auto &arm : arms) {
     // https://proceedings.neurips.cc/paper_files/paper/2017/file/b299ad862b6f12cb57679f0538eca514-Paper.pdf
     if (arm.get_mu() < mu_star) {
-      delta = std::min(delta, mu_star - arm.get_mu());
+      delta += std::min(delta, mu_star - arm.get_mu());
     }
   }
-  return std::max(std::ceill(4.0L / (delta * delta) * std::log(static_cast<long double>(arms.size()) * delta * delta / 4.0L)), 1.0L);
+  // http://pierre.gaillard.me/doc/mva/mva_sequential_learning_lecture3.pdf
+  // I derived this equation using theorem 6.1 in these lecture notes which were given to me during OH.
+  // I set the derivate equal to 0 and solved for m using the simplification that T >> mK. A picture of my work is attached in the folder.
+  return std::clamp(std::ceill(1.0L / (delta * delta) * std::log(static_cast<long double>(K + T * delta * delta))), 1.0L, static_cast<long double>(T / K));
 }
 
 int main() {
@@ -63,7 +67,7 @@ int main() {
   for (size_t K = MIN_K; K <= MAX_K; K += K_STEP) {
     for (size_t T = MIN_T; T <= MAX_T; T += T_STEP) {
       if (K == 30 && T == 5000) break;
-      std::cout << "Using a random mean from [1,100] and stdev [0.1, 1] for each arm\n";
+      std::cout << "\nUsing a random mean from [1,100] and stdev [0.1, 1] for each arm";
         std::cout << "\n Begin simulation \narms (K): " << K
                   << ", rounds (T): " << T
                   << ", Experiment Repetitions: " << EXPERIMENT_REPITITIONS << "\n";
@@ -71,7 +75,7 @@ int main() {
         std::vector<long double> regrets;
         for (size_t i = 0; i < EXPERIMENT_REPITITIONS; ++i) {
           ETCAgent agent(K, T);
-          long double m = get_theoretical_m(agent);
+          long double m = get_theoretical_m(agent, K, T);
           std::cout << "  Experiment " << (i + 1)
                     << ": Best depth m = " << m << "\n";
           size_t best_arm = agent.explore(m);

@@ -19,5 +19,5 @@ endif()
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 
-add_executable(artie src/etc.cc)
-target_include_directories(artie PRIVATE include)
+add_executable(explore-then-commit src/etc.cc)
+target_include_directories(explore-then-commit PRIVATE include)
